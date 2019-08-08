@@ -1,26 +1,36 @@
 package com.mrsolutions.taskmanangersts.controller;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.mrsolutions.taskmanangersts.domain.User;
+import com.mrsolutions.taskmanangersts.dto.UserDTO;
+import com.mrsolutions.taskmanangersts.services.UserService;
 
 @Controller
+@RequestMapping("/users")
 public class UserController {
 
-	@GetMapping(value = "/users")
-	public ResponseEntity<List<User>> findAll() {
-		User moises = new User("1", "Moisés Junior", "moises.rsjr@gmail.com");
-		User arthur = new User("2", "Arthur Henrique", "arthurhenrique@gmail.com");
-		User anajulia = new User("3", "Ana Julia", "anajulia@gmail.com");
-		User andrea = new User("4", "Andrea", "andrea@gmail.com");
-		List<User> list = new ArrayList<>();
-		list.addAll(Arrays.asList(moises, arthur,anajulia,andrea));
-		return ResponseEntity.ok(list);
+	@Autowired
+	private UserService service;
+	
+	@GetMapping(produces = "application/json" )
+ 	public ResponseEntity<List<UserDTO>> findAll() {
+		List<User> list = service.findAll();
+		List<UserDTO> listDto = list.stream().map(x -> new UserDTO(x)).collect(Collectors.toList());
+		return ResponseEntity.ok().body(listDto);
+	}
+	 
+	@GetMapping(value = "/{id}", produces = "application/json")
+	public ResponseEntity<UserDTO> findById(@PathVariable String id) {
+		User obj = service.findById(id);
+		return ResponseEntity.ok().body(new UserDTO(obj));
 	}
 }
